@@ -67,6 +67,9 @@ Se creó la política `USERS_TO_INTERNET`, con origen en VLAN 10 y destino WAN, 
 
 ### 5. Políticas de seguridad
 
+[Configuracion de Politica de firewall](Politicadefirewall.png)
+
+
 Las políticas de firewall se configuraron para controlar el acceso entre las diferentes redes.
 
 | Política             | Origen  | Destino  | Servicio   | Acción       |
