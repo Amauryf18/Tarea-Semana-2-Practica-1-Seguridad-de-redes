@@ -28,7 +28,7 @@ Los servidores utilizan las siguientes direcciones:
 | Router de Internet | 10.0.0.1     |
 
 ### 3. Configuración del switch
-[ Configuracion de VLANS Fortigate](VLANS.png)
+[ Configuracion de VLANS Fortigate](VLANS.jpg)
 
 
 Se crearon las VLAN 10, 20 y 30 en el switch Cisco IOSvL2. El enlace hacia FortiGate se configuró como troncal para transportar las tres VLAN.
