@@ -3,7 +3,7 @@ FortiGate: Implementación y configuración de políticas de firewall, reglas de
 
 ## 🎬 Video demostrativo
 
-[Ver video demostrativo](COLOCAR_ENLACE_DEL_VIDEO)
+[Ver video demostrativo](https://youtu.be/OozHqg0e158)
 
 ## Propósito del laboratorio
 
