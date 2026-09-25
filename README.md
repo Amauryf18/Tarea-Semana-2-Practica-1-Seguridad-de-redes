@@ -16,7 +16,7 @@ seguridad, inspección del tráfico y limitación de ancho de banda.
 
 ## Topología
 
-![Topología del laboratorio](diagramas/topologia.png)
+![Topología del laboratorio](Diagrama.jpg)
 
 ## Direccionamiento
 
