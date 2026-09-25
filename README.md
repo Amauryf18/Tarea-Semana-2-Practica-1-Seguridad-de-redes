@@ -37,7 +37,7 @@ seguridad, inspección del tráfico y limitación de ancho de banda.
 
 ## Documentación
 
-[Documentación técnica](documentacion/laboratorio.md)
+[📄 Documentación](documentacion.md)
 
 ## Evidencias
 
