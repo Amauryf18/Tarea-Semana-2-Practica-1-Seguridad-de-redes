@@ -40,17 +40,18 @@ Se crearon las VLAN 10, 20 y 30 en el switch Cisco IOSvL2. El enlace hacia Forti
 | Gi0/2    | Access | VLAN 20          |
 | Gi0/3    | Access | VLAN 30          |
 
-La VLAN 10 está destinada a los usuarios, la VLAN 20 al servidor WEB y la VLAN 30 al servidor de base de datos.
+La VLAN 10 está destinada a los usuarios, la VLAN 30 al servidor WEB y la VLAN 20 al servidor de base de datos.
 
 ### 4. Configuración de FortiGate
 
-Se configuraron las interfaces VLAN sobre la interfaz física conectada al switch, asignando a cada una su dirección de gateway correspondiente.
+Se configuraron las interfaces VLAN sobre la interfaz física en el puerto 2 conectada al switch, asignando a cada una su dirección de gateway correspondiente.
 
 En la VLAN 10 se habilitó DHCP para proporcionar automáticamente direcciones IP a los equipos de usuarios.
 
 **Ruta por defecto**
 
 Se configuró una ruta estática con los siguientes parámetros:
+[Configuracion de ruta Fortigate](rutapordefecto.png)
 
 | Parámetro | Valor     |
 | --------- | --------- |
