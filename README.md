@@ -39,10 +39,6 @@ seguridad, inspección del tráfico y limitación de ancho de banda.
 
 [📄 Documentación](Documentacion.md)
 
-## Scripts
-
-[Scripts utilizados](scripts/)
-
 ## Running-Configs
 
 [Configuraciones de los dispositivos](running-config)
