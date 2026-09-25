@@ -61,6 +61,7 @@ Se configuró una ruta estática con los siguientes parámetros:
 | Interfaz  | WAN       |
 
 **NAT**
+[Configuracion de NAT](Nat.png)
 
 Se creó la política `USERS_TO_INTERNET`, con origen en VLAN 10 y destino WAN, habilitando NAT mediante la dirección de la interfaz de salida.
 
