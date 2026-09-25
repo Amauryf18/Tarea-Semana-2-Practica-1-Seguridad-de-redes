@@ -1,0 +1,196 @@
+# DOCUMENTACIÓN TÉCNICA
+
+## Implementación de una infraestructura de red con FortiGate, GNS3 y VMware
+
+### 1. Introducción
+
+El presente documento describe la configuración de una infraestructura de red virtualizada mediante GNS3 y VMware, utilizando FortiGate como firewall principal, un switch Cisco IOSvL2 y dos servidores Ubuntu destinados a los servicios WEB y de base de datos.
+
+La infraestructura contempla segmentación mediante VLAN, enrutamiento inter-VLAN, DHCP, NAT, políticas de seguridad, servicios HTTPS y MySQL, inspección de tráfico y limitación de ancho de banda.
+
+### 2. Topología y direccionamiento
+
+La infraestructura está dividida en tres VLAN, conectadas mediante un switch Cisco IOSvL2 y administradas por FortiGate.
+
+| VLAN | Nombre   | Red             | Gateway      |
+| ---- | -------- | --------------- | ------------ |
+| 10   | USUARIOS | 192.168.10.0/25 | 192.168.10.1 |
+| 20   | BD       | 192.168.20.0/28 | 192.168.20.1 |
+| 30   | WEB      | 192.168.30.0/28 | 192.168.30.1 |
+
+Los servidores utilizan las siguientes direcciones:
+
+| Equipo             | Dirección IP |
+| ------------------ | ------------ |
+| Servidor BD        | 192.168.20.2 |
+| Servidor WEB       | 192.168.30.2 |
+| FortiGate WAN      | 10.0.0.201   |
+| Router de Internet | 10.0.0.1     |
+
+### 3. Configuración del switch
+
+Se crearon las VLAN 10, 20 y 30 en el switch Cisco IOSvL2. El enlace hacia FortiGate se configuró como troncal para transportar las tres VLAN.
+
+| Interfaz | Modo   | Asignación       |
+| -------- | ------ | ---------------- |
+| Gi0/0    | Trunk  | VLAN 10, 20 y 30 |
+| Gi0/1    | Access | VLAN 10          |
+| Gi0/2    | Access | VLAN 20          |
+| Gi0/3    | Access | VLAN 30          |
+
+La VLAN 10 está destinada a los usuarios, la VLAN 20 al servidor WEB y la VLAN 30 al servidor de base de datos.
+
+### 4. Configuración de FortiGate
+
+Se configuraron las interfaces VLAN sobre la interfaz física conectada al switch, asignando a cada una su dirección de gateway correspondiente.
+
+En la VLAN 10 se habilitó DHCP para proporcionar automáticamente direcciones IP a los equipos de usuarios.
+
+**Ruta por defecto**
+
+Se configuró una ruta estática con los siguientes parámetros:
+
+| Parámetro | Valor     |
+| --------- | --------- |
+| Destino   | 0.0.0.0/0 |
+| Gateway   | 10.0.0.1  |
+| Interfaz  | WAN       |
+
+**NAT**
+
+Se creó la política `USERS_TO_INTERNET`, con origen en VLAN 10 y destino WAN, habilitando NAT mediante la dirección de la interfaz de salida.
+
+### 5. Políticas de seguridad
+
+Las políticas de firewall se configuraron para controlar el acceso entre las diferentes redes.
+
+| Política             | Origen  | Destino  | Servicio   | Acción       |
+| -------------------- | ------- | -------- | ---------- | ------------ |
+| USUARIOS_A_WEB       | VLAN 10 | WEB      | HTTPS/443  | ACCEPT       |
+| BLOQUEAR_USUARIOS_DB | VLAN 10 | DB       | MySQL/3306 | DENY         |
+| WEB_A_DB             | VLAN 20 | DB       | MySQL/3306 | ACCEPT       |
+| USERS_TO_INTERNET    | VLAN 10 | Internet | ALL        | ACCEPT + NAT |
+
+Las políticas de comunicación interna utilizan los objetos de dirección correspondientes a cada red y servidor, sin NAT.
+
+Se configuró el registro de sesiones en las políticas de acceso para facilitar la supervisión del tráfico.
+
+### 6. Configuración del servidor WEB
+
+El servidor WEB utiliza Ubuntu Server con la dirección `192.168.20.2/28` y el gateway `192.168.20.1`.
+
+**Instalación de Apache y herramientas**
+
+```bash
+sudo apt update
+sudo apt install apache2 openssl php php-mysql curl wget -y
+```
+
+`apt update` actualiza la información de los repositorios. El segundo comando instala Apache, OpenSSL, PHP y las herramientas necesarias para el servicio WEB.
+
+**Configuración de HTTPS**
+
+```bash
+sudo a2enmod ssl
+sudo a2ensite default-ssl
+sudo systemctl restart apache2
+```
+
+Estos comandos habilitan el módulo SSL, activan el sitio HTTPS predeterminado y reinician Apache para aplicar la configuración.
+
+### 7. Configuración del servidor DB
+
+El servidor de base de datos utiliza Ubuntu Server con la dirección `192.168.30.2/28` y el gateway `192.168.30.1`.
+
+**Instalación de MySQL**
+
+```bash
+sudo apt update
+sudo apt install mysql-server -y
+sudo systemctl enable --now mysql
+```
+
+El último comando habilita el inicio automático de MySQL e inicia el servicio.
+
+**Configuración de conexiones remotas**
+
+Se editó el archivo de configuración de MySQL:
+
+```bash
+sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf
+```
+
+Se estableció el siguiente parámetro:
+
+```ini
+bind-address = 0.0.0.0
+```
+
+Esta configuración permite que MySQL escuche en las interfaces de red del servidor.
+
+Posteriormente se reinicia el servicio:
+
+```bash
+sudo systemctl restart mysql
+```
+
+### 8. Configuración del usuario MySQL
+
+Se creó el usuario `adelacruz`, autorizado para conectarse desde la dirección IP del servidor WEB.
+
+```bash
+sudo mysql
+```
+
+```sql
+CREATE USER 'adelacruz'@'192.168.20.2'
+IDENTIFIED BY '<contraseña configurada>';
+
+GRANT ALL PRIVILEGES ON *.*
+TO 'adelacruz'@'192.168.20.2';
+
+FLUSH PRIVILEGES;
+EXIT;
+```
+
+### 9. Inspección y protección del tráfico
+
+Se incluyeron mecanismos de seguridad de FortiGate para la inspección del tráfico HTTPS y la identificación de patrones asociados a SQL Injection.
+
+Los perfiles de inspección permiten analizar el tráfico de acuerdo con las políticas de seguridad y los servicios utilizados.
+
+También se contempló el filtrado de aplicaciones y descargas de archivos ejecutables, conforme a los requisitos del laboratorio.
+
+### 10. Traffic Shaping
+
+Se configuró Traffic Shaping en FortiGate para establecer límites de ancho de banda sobre el tráfico seleccionado.
+
+La configuración se realiza desde **Policy & Objects → Traffic Shapers**, creando un perfil de limitación y asociándolo a la política correspondiente.
+
+Este mecanismo permite administrar el consumo de ancho de banda y complementar las medidas de protección frente a tráfico excesivo.
+
+### 11. Registro y monitoreo
+
+Se habilitó el registro de tráfico mediante la opción `Log Allowed Traffic → All Sessions` en las políticas correspondientes.
+
+Los registros pueden consultarse desde **Log & Report → Forward Traffic** y permiten identificar direcciones de origen y destino, servicios, puertos, acciones y políticas utilizadas.
+
+### 12. Comandos de administración
+
+| Comando                                         | Descripción                                                |
+| ----------------------------------------------- | ---------------------------------------------------------- |
+| `sudo systemctl status apache2`                 | Consulta el estado de Apache.                              |
+| `sudo systemctl restart apache2`                | Reinicia Apache.                                           |
+| `sudo systemctl status mysql`                   | Consulta el estado de MySQL.                               |
+| `sudo systemctl restart mysql`                  | Reinicia MySQL.                                            |
+| `sudo ss -tlnp \| grep 3306`                    | Muestra las interfaces y puertos en los que escucha MySQL. |
+| `curl -k -i https://192.168.20.2/`              | Realiza una solicitud HTTPS al servidor WEB.               |
+| `nc -vz -w 5 192.168.30.2 3306`                 | Comprueba la conectividad TCP hacia MySQL.                 |
+| `mysql -h 192.168.30.2 -P 3306 -u adelacruz -p` | Inicia una conexión remota a MySQL.                        |
+| `ping -c 4 192.168.30.2`                        | Envía cuatro solicitudes ICMP al servidor DB.              |
+
+### 13. Conclusión
+
+La infraestructura está diseñada para proporcionar segmentación de red y control de acceso mediante FortiGate. La configuración incluye tres VLAN, enrutamiento inter-VLAN, DHCP, una ruta por defecto, NAT y políticas específicas para la comunicación entre usuarios y servidores.
+
+Los servidores Ubuntu proporcionan los servicios HTTPS y MySQL, mientras que las funciones de inspección, registro y limitación de tráfico complementan la seguridad de la infraestructura.
