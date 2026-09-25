@@ -1,14 +1,16 @@
-# DOCUMENTACIÓN TÉCNICA
+ DOCUMENTACIÓN TÉCNICA
 
-## Implementación de una infraestructura de red con FortiGate, GNS3 y VMware
+Implementación de una infraestructura de red con FortiGate, GNS3 y VMware
 
-### 1. Introducción
+ 1. Introducción
 
 El presente documento describe la configuración de una infraestructura de red virtualizada mediante GNS3 y VMware, utilizando FortiGate como firewall principal, un switch Cisco IOSvL2 y dos servidores Ubuntu destinados a los servicios WEB y de base de datos.
 
 La infraestructura contempla segmentación mediante VLAN, enrutamiento inter-VLAN, DHCP, NAT, políticas de seguridad, servicios HTTPS y MySQL, inspección de tráfico y limitación de ancho de banda.
 
-### 2. Topología y direccionamiento
+2. Topología y direccionamiento
+
+[Capturas de configuración](topologia.png)
 
 La infraestructura está dividida en tres VLAN, conectadas mediante un switch Cisco IOSvL2 y administradas por FortiGate.
 
