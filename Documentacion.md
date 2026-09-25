@@ -51,7 +51,8 @@ En la VLAN 10 se habilitó DHCP para proporcionar automáticamente direcciones I
 **Ruta por defecto**
 
 Se configuró una ruta estática con los siguientes parámetros:
-[Configuracion de ruta Fortigate](rutapordefecto.png)
+
+[Configuracion de ruta Fortigate](Rutapordefecto.png)
 
 | Parámetro | Valor     |
 | --------- | --------- |
